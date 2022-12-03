@@ -1,16 +1,43 @@
-mapping = { 'A': 0, 'B': -1, 'C': 1, 'X': 1, 'Y': 2, 'Z': 3 }
-
-with open("_input/day2.txt", encoding='utf8') as f:
+with open("_input/day3.txt", encoding='utf8') as f:
     lines =  f.read().splitlines()
 
-p1 = 0
-p2 = 0
+def getMatchingChar(a, b):
+    for c in a:
+        if (c in b):
+            return c
 
-for line in lines:
-    l1, l2 = line.split(' ')
-    a = mapping[l1]
-    x = mapping[l2]
-    p1 += x + (3 * (x + a) % 9)
-    p2 += ((x - a + 1) % 3) + 1 + (3 * (x - 1))
+def getOrdVal(c):
+    v = ord(c)
+    if (v >= 97):
+        return v - 96
+    else:
+        return v - 38
 
-print(f'part 1 is {p1}, part 2 is {p2}')
+def part1(lines):
+    a = 0
+    for line in lines:
+        m = int(len(line)/2)
+        c = getMatchingChar(line[:m], line[m:])
+        a += getOrdVal(c)
+    return a
+
+def part2(lines):
+    acc = 0
+    for i in range(0, len(lines), 3):
+        a = {}
+        for c in lines[i]:
+            if (c not in a):
+                a[c] = 1
+        for c in lines[i + 1]:
+            if (c in a and a[c] == 1):
+                a[c] = 2
+        for c in lines[i + 2]:
+            if (c in a and a[c] == 2):
+                a[c] = 3
+        for (k, v) in a.items():
+            if (v == 3):
+                acc += getOrdVal(k)
+    return acc
+        
+
+print(f'part 1 is {part1(lines)}, part 2 is {part2(lines)}')
