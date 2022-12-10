@@ -1,5 +1,3 @@
-import re
-
 with open("_input/day9.txt", encoding='utf8') as f:
     lines = f.read().splitlines()
 
