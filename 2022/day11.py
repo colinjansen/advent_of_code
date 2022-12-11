@@ -33,7 +33,10 @@ def getMonkeys() -> list[Monkey]:
 
 
 def getSuperModulo(monkeys: list[Monkey]):
-    return math.lcm(*list(map(lambda m: m.test_d, monkeys)))
+    sm = 1
+    for m in monkeys:
+        sm *= m.test_d
+    return sm
 
 
 def round(monkeys: list[Monkey], sm, p):
@@ -63,3 +66,4 @@ def go(n: int, p: int):
 
 
 print(f'part 1 is {go(20, 1)} part 2 is {go(10000, 2)}')
+
