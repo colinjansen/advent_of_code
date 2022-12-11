@@ -1,10 +1,8 @@
 with open("_input/day9.txt", encoding='utf8') as f:
     lines = f.read().splitlines()
 
-def clamp(n):
-  if n > 0: return 1
-  if n < 0: return -1
-  return 0
+def clamp(n: int):
+  return -1 if n < 0 else int(n > 0)
 
 class Point:
   def __init__(self):
