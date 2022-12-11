@@ -1,4 +1,3 @@
-import re
 from math import prod, lcm
 from functools import cache
 
@@ -13,12 +12,34 @@ class Monkey:
         self.false_monkey: int = false_monkey
         self.op = op
 
-    def throwTo(self, n: int) -> int:
+    def inspect(self, monkeys, lcm):
+        self.inspections += 1
+        stress_level = self.calculate_stress_level(lcm)
+        monkey_index = self.get_monkey_to_throw_to(stress_level)
+        self.throw_item(monkeys[monkey_index], stress_level)
+
+    def calculate_stress_level(self, lcm):
+        stress_level = self.items[0]
+        stress_level = self.op(stress_level)
+        # for part 1 we just want to divide the stress level by three each round
+        if part == 1:
+            stress_level = stress_level // 3
+        # for part 2 we need to keep the stress level boxes to the smallest
+        # ceiling we can while still having all of the math work
+        if part == 2:
+            stress_level %= lcm
+        return stress_level
+
+    def get_monkey_to_throw_to(self, n: int) -> int:
         return self.true_monkey if n % self.denominator == 0 else self.false_monkey
+
+    def throw_item(self, monkey, stress_level):
+        self.items = self.items[1:]
+        monkey.items.append(stress_level)
 
 
 def getMonkeys() -> list[Monkey]:
-    return [
+    monkeys = [
         Monkey(3, 4, 2, [99, 67, 92, 61, 83, 64, 98], lambda n: n * 17),
         Monkey(5, 3, 5, [78, 74, 88, 89, 50], lambda n: n * 11),
         Monkey(2, 6, 4, [98, 91], lambda n: n + 4),
@@ -28,34 +49,18 @@ def getMonkeys() -> list[Monkey]:
         Monkey(19, 7, 1, [69, 60, 53, 89, 71, 88], lambda n: n + 5),
         Monkey(7, 1, 3, [72, 54, 63, 80], lambda n: n + 3)
     ]
+    lowestCommonMultiple = getLowestCommonMultiple(monkeys)
+    return (monkeys, lowestCommonMultiple)
 
 
 def getLowestCommonMultiple(monkeys: list[Monkey]):
     return lcm(*map(lambda m: m.denominator, monkeys))
 
 
-def inspect_item(monkey: Monkey):
-    monkey.inspections += 1
-    stress_level = monkey.items[0]
-    stress_level = monkey.op(stress_level)
-    if part == 2:
-        stress_level %= lowestCommonMultiple
-    if part == 1:
-        stress_level = stress_level // 3
-    return stress_level
-
-
-def throw_item(monkeys: list[Monkey], monkey: Monkey, stress_level: int):
-    monkey_index = monkey.throwTo(stress_level)
-    monkey.items = monkey.items[1:]
-    monkeys[monkey_index].items.append(stress_level)
-
-
-def round(monkeys: list[Monkey]):
+def round(monkeys: list[Monkey], lcm: int):
     for i in range(0, len(monkeys)):
         while (0 < len(monkeys[i].items)):
-            stress_level = inspect_item(monkeys[i])
-            throw_item(monkeys, monkeys[i], stress_level)
+            monkeys[i].inspect(monkeys, lcm)
 
 
 def productOfTwoHighest(monkeys: list[Monkey]):
@@ -63,19 +68,18 @@ def productOfTwoHighest(monkeys: list[Monkey]):
     return prod(sorted(inspections)[-2:])
 
 
-def go(monkeys: list[Monkey], n: int):
+def go(n: int):
+    monkeys, lcm = getMonkeys()
     for _ in range(0, n):
-        round(monkeys)
+        round(monkeys, lcm)
     return productOfTwoHighest(monkeys)
 
 
-monkeys = getMonkeys()
-lowestCommonMultiple = getLowestCommonMultiple(monkeys)
 
 part = 1
-part1 = go(monkeys, 20)
+part1 = go(20)
 
 part = 2
-part2 = go(monkeys, 10000)
+part2 = go(10000)
 
 print(f'part 1 is {part1} part 2 is {part2}')
