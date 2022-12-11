@@ -1,22 +1,20 @@
 import re
-import math
+from math import prod, lcm
+from functools import cache
 
 
 class Monkey:
 
-    def __init__(self, d: int, t: int, f: int, items: list[int], op):
+    def __init__(self, denominator: int, true_monkey: int, false_monkey: int, items: list[int], op):
         self.inspections = 0
         self.items: list[int] = items
-        self.test_d: int = d
-        self.test_t: int = t
-        self.test_f: int = f
+        self.denominator: int = denominator
+        self.true_monkey: int = true_monkey
+        self.false_monkey: int = false_monkey
         self.op = op
 
-    def __str__(self) -> str:
-        return f'Monkey {self.inspections} {self.items}'
-
     def throwTo(self, n: int) -> int:
-        return self.test_t if n % self.test_d == 0 else self.test_f
+        return self.true_monkey if n % self.denominator == 0 else self.false_monkey
 
 
 def getMonkeys() -> list[Monkey]:
@@ -32,38 +30,52 @@ def getMonkeys() -> list[Monkey]:
     ]
 
 
-def getSuperModulo(monkeys: list[Monkey]):
-    sm = 1
-    for m in monkeys:
-        sm *= m.test_d
-    return sm
+def getLowestCommonMultiple(monkeys: list[Monkey]):
+    return lcm(*map(lambda m: m.denominator, monkeys))
 
 
-def round(monkeys: list[Monkey], sm, p):
+def inspect_item(monkey: Monkey):
+    monkey.inspections += 1
+    stress_level = monkey.items[0]
+    stress_level = monkey.op(stress_level)
+    if part == 2:
+        stress_level %= lowestCommonMultiple
+    if part == 1:
+        stress_level = stress_level // 3
+    return stress_level
+
+
+def throw_item(monkeys: list[Monkey], monkey: Monkey, stress_level: int):
+    monkey_index = monkey.throwTo(stress_level)
+    monkey.items = monkey.items[1:]
+    monkeys[monkey_index].items.append(stress_level)
+
+
+def round(monkeys: list[Monkey]):
     for i in range(0, len(monkeys)):
         while (0 < len(monkeys[i].items)):
-            monkeys[i].inspections += 1
-            wl = monkeys[i].items[0]
-            wl = monkeys[i].op(wl)
-            if p == 2: wl %= sm
-            if p == 1: wl = wl // 3
-            m = monkeys[i].throwTo(wl)
-            monkeys[i].items = monkeys[i].items[1:]
-            monkeys[m].items.append(wl)
+            stress_level = inspect_item(monkeys[i])
+            throw_item(monkeys, monkeys[i], stress_level)
 
 
 def productOfTwoHighest(monkeys: list[Monkey]):
-    two = sorted(list(map(lambda m: m.inspections, monkeys)))[-2:]
-    return two[0] * two[1]
+    inspections = list(map(lambda m: m.inspections, monkeys))
+    return prod(sorted(inspections)[-2:])
 
 
-def go(n: int, p: int):
-    monkeys = getMonkeys()
-    sm = getSuperModulo(monkeys)
+def go(monkeys: list[Monkey], n: int):
     for _ in range(0, n):
-        round(monkeys, sm, p)
+        round(monkeys)
     return productOfTwoHighest(monkeys)
 
 
-print(f'part 1 is {go(20, 1)} part 2 is {go(10000, 2)}')
+monkeys = getMonkeys()
+lowestCommonMultiple = getLowestCommonMultiple(monkeys)
 
+part = 1
+part1 = go(monkeys, 20)
+
+part = 2
+part2 = go(monkeys, 10000)
+
+print(f'part 1 is {part1} part 2 is {part2}')
