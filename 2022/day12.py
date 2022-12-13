@@ -1,7 +1,6 @@
-with open("_input/day12.txt.test", encoding='utf8') as f:
+with open("_input/day12.txt", encoding='utf8') as f:
     lines = f.read().splitlines()
 
-counter = 0
 
 
 class Node:
@@ -9,20 +8,15 @@ class Node:
         self.position = (0, 0)
         self.moves = 0
         self.parent = None
-        self.children = []
+        self.elevation = None
 
-    def __str__(self):
-        buf = f'{self.x} {self.y} {self.moves}\n'
-        for c in self.children:
-            buf += str(c)
-        return buf
+
+visited = {}
 
 
 grid = []
 for line in lines:
     grid.append(list(line))
-
-memo = [[0] * len(grid[0]) for _ in range(len(grid))]
 
 
 def get_position(search: str, replace: str, lines: list[str]):
@@ -42,7 +36,7 @@ def can_move(f, t):
     vf = get_height(f)
     vt = get_height(t)
     d = vt - vf
-    return True if d >= 0 and d <= 1 else False
+    return True if d >= -1 else False
 
 
 def on_grid(p):
@@ -51,7 +45,15 @@ def on_grid(p):
     return p[0] >= 0 and p[0] < lines and p[1] >= 0 and p[1] < chars
 
 
-visited = {}
+def try_add_to_queue(queue, p, n):
+    if on_grid(p) == False: return
+    if can_move(n.position, p) == False: return
+    node = Node()
+    node.position = p
+    node.parent = n
+    node.steps = n.steps + 1
+    node.elevation = grid[node.position[0]][node.position[1]]
+    queue.append(node)
 
 
 def build_tree(start):
@@ -59,51 +61,28 @@ def build_tree(start):
     tree.position = start
     tree.parent = None
     tree.steps = 0
+    tree.elevation = grid[tree.position[0]][tree.position[1]]
 
     queue = [tree]
 
     while len(queue) > 0:
-        n = queue.pop()
+        node = queue.pop()
 
         # have we already been here?        
-        if (memo[n.position[0]][n.position[1]] > 0):
-            if (visited[n.position].steps > n.steps):
-                visited[n.position].steps = n.steps
-                visited[n.position].parent = n.parent
-            continue
+        if (node.position in visited):
+            if (visited[node.position].steps <= node.steps):
+                continue
+            if (visited[node.position].steps > node.steps):
+                visited[node.position].steps = node.steps
+                visited[node.position].parent = node.parent
 
-        u = (n.position[0] - 1, n.position[1])
-        d = (n.position[0] + 1, n.position[1])
-        l = (n.position[0], n.position[1] - 1)
-        r = (n.position[0], n.position[1] + 1)
+        visited[node.position] = node
 
-        if on_grid(l) and can_move(n.position, l):
-            new = Node()
-            new.position = l
-            new.parent = n
-            new.steps = n.steps + 1
-            queue.append(new)
-        if on_grid(r) and can_move(n.position, r):
-            new = Node()
-            new.position = r
-            new.parent = n
-            new.steps = n.steps + 1
-            queue.append(new)
-        if on_grid(u) and can_move(n.position, u):
-            new = Node()
-            new.position = u
-            new.parent = n
-            new.steps = n.steps + 1
-            queue.append(new)
-        if on_grid(d) and can_move(n.position, d):
-            new = Node()
-            new.position = d
-            new.parent = n
-            new.steps = n.steps + 1
-            queue.append(new)
+        try_add_to_queue(queue, (node.position[0] - 1, node.position[1]), node)
+        try_add_to_queue(queue, (node.position[0] + 1, node.position[1]), node)
+        try_add_to_queue(queue, (node.position[0], node.position[1] - 1), node)
+        try_add_to_queue(queue, (node.position[0], node.position[1] + 1), node)
 
-        visited[n.position] = n
-        memo[n.position[0]][n.position[1]] = 2
 
     return tree
 
@@ -119,12 +98,16 @@ def get_path_steps(p: Node):
 start = get_position('S', 'a', grid)
 end = get_position('E', 'z', grid)
 
-tree = build_tree(start)
-steps = get_path_steps(visited[end])
 
-for m in memo:
-    print(m)
+tree = build_tree(end)
 
-print(steps)
+part1 = get_path_steps(visited[start])
 
-#print(f'part 1 is {min(paths)} part 2 is {0}')
+part2 = 987654321
+
+for v in visited:
+    if (visited[v].elevation == 'a'):
+        steps = get_path_steps(visited[v])
+        if (steps < part2): part2 = steps
+
+print(f'part 1 is: {part1} and part 2 is {part2}')
