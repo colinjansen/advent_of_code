@@ -1,109 +1,96 @@
 import re
+from collections import deque
 
-with open('_input/day19.txt.test') as f:
+with open('_input/day19.txt') as f:
     lines = f.read().splitlines()
 
-class Blueprint:
-    def __init__(self, id:int, ore:int, clay:int, obsidian_ore: int, obsidian_clay: int, geode_ore: int, geode_obsidian: int):
-        self.id = int(id)
-        self.cost_ore_ore = int(ore)
-        self.cost_clay_ore = int(clay)
-        self.cost_obsidian_ore = int(obsidian_ore)
-        self.cost_obsidian_clay = int(obsidian_clay)
-        self.cost_geode_ore = int(geode_ore)
-        self.cost_geode_obsidian = int(geode_obsidian)
-    def __repr__(self):
-        return f'#{self.id} ORE:{self.cost_ore_ore} CLAY:{self.cost_clay_ore} OBSIDIAN:{self.cost_obsidian_ore}/{self.cost_obsidian_clay} GEODE:{self.cost_geode_ore}/{self.cost_geode_obsidian}'
-    
-
-blueprints = []
+blueprints = {}
 for line in lines:
     result = re.match('Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian', line)
-    blueprints.append(Blueprint(*result.groups()))
+    g = result.groups()
+    blueprints[int(g[0])] = (int(g[1]), int(g[2]), int(g[3]), int(g[4]), int(g[5]), int(g[6]))
 
-def run(bp: Blueprint, time: int):
+def run_blueprint(BP, d = 24):
 
-    # mineral cache
-    ore = 0
-    clay = 0
-    obsidian = 0
-    geode = 0
+    DP = set()
+    Q = deque()
+    # state = robots: ore, clay, obsidian, geode
+    #           ores: ore, clay, obsidian, geode
+    #                 day
+    Q.append((0, 0, 0, 0, 1, 0, 0, 0, d))
+    BEST = 0
+    CoO, CcO, CobO, CobC, CgeO, CgeOb = BP
+    while Q:
+        # remember what we already know
+        state = Q.popleft()
+        # pull out the variables from the state
+        o, c, ob, g, Ro, Rc, Rob, Rg, day = state
+        # update our 'best'
+        BEST = max(BEST, g)
+        # if our time has run out...
+        if day == 0: continue
 
-    # bots
-    ore_bots = 1
-    clay_bots = 0
-    obsidian_bots = 0
-    geode_bots = 0
+        # optimize robots
+        max_ore = max([CoO, CcO, CobO, CgeO])
+        if Ro >= max_ore: 
+            Ro = max_ore
+        if Rc >= CobC: 
+            Rc = CobC
+        if Rob >= CgeOb: 
+            Rob = CgeOb
 
-    # bots being built
-    ore_bots_building = 0
-    clay_bots_building = 0
-    obsidian_bots_building = 0
-    geode_bots_building = 0
+        # optimize minerals
+        if o  >= max(max_ore, day * max_ore - Ro  * (day-1)): 
+            o = max(max_ore, day * max_ore - Ro * (day-1))
+        if c  >= max(CobC,    day * CobC    - Rc  * (day-1)): 
+            c = max(0, day * CobC - Rc * (day-1))
+        if ob >= max(CgeOb,   day * CgeOb   - Rob * (day-1)): 
+            ob = max(0, day * CgeOb - Rob * (day-1))
 
-    # the big stinking BL loop
-    for minute in range(1, time + 1):
-        print(f"minute {minute}")
+        state = (o, c, ob, g, Ro, Rc, Rob, Rg, day)
+        if state in DP: 
+            continue
+        DP.add(state)
 
-        # build a geode bot?
-        if obsidian >= bp.cost_geode_obsidian and ore >= bp.cost_geode_ore:
-            obsidian -= bp.cost_geode_obsidian
-            ore -= bp.cost_geode_ore
-            geode_bots_building += 1
-            print('\tbuilding a geode bot')
+        if (len(DP) % 1_000_000 == 0):
+            print(state)
+        
+        # buy an ore robot
+        if o >= CoO:
+            Q.append((Ro + o - CoO, Rc + c, Rob + ob, Rg + g, Ro + 1, Rc, Rob, Rg, day - 1))
 
-        # build an obsidian bot?
-        if clay >= bp.cost_obsidian_clay and ore >= bp.cost_obsidian_ore:
-            clay -= bp.cost_obsidian_clay
-            ore -= bp.cost_obsidian_ore
-            obsidian_bots_building += 1
-            print('\tbuilding an obsidian bot')
+        # buy a clay robot
+        if o >= CcO: 
+            Q.append((Ro + o - CcO, Rc + c, Rob + ob, Rg + g, Ro, Rc + 1, Rob, Rg, day - 1))
+            
+        # buy an obsidian robot
+        if o >= CobO and c >= CobC: 
+            Q.append((Ro + o - CobO, Rc + c - CobC, Rob + ob, Rg + g, Ro, Rc, Rob + 1, Rg, day - 1))
+        
+        # buy a geode robot
+        if o >= CgeO and ob >= CgeOb: 
+            Q.append((Ro + o - CgeO, Rc + c, Rob + ob - CgeOb, Rg + g, Ro, Rc, Rob, Rg + 1, day - 1))
 
-        # build a clay bot?
-        if ore >= bp.cost_clay_ore:
-            ore -= bp.cost_clay_ore
-            clay_bots_building += 1
-            print('\tbuilding a clay bot')
+        # no robot builds
+        Q.append((Ro + o, Rc + c, Rob + ob, Rg + g, Ro, Rc, Rob, Rg, day - 1))
 
-        # collect your minerals, bots
-        ore += ore_bots
-        clay += clay_bots
-        obsidian += obsidian_bots
-        geode += geode_bots
+    return BEST
 
-        if ore_bots:
-            print(f'\t{ore_bots} ore bots collected {ore_bots} ore: we now have {ore}')
-        if clay_bots:
-            print(f'\t{clay_bots} clay bots collected {clay_bots} ore: we now have {clay}')
-        if obsidian_bots:
-            print(f'\t{obsidian_bots} obsidian bots collected {obsidian_bots} ore: we now have {obsidian}')
-        if geode_bots:
-            print(f'\t{geode_bots} geode bots collected {geode_bots} ore: we now have {geode}')
+def part1():
+    minutes = 24
+    total = 0
+    for i in range(len(blueprints)):
+        best = run_blueprint(blueprints[i+1], minutes)
+        total += (i+1) * best
+        print(f'blueprint {i + 1} has best {best} - total {total}')
 
-        # add the bots being built
-        if ore_bots_building:
-            print(f"\tadding {ore_bots_building} ore bots")
-        ore_bots += ore_bots_building
-        ore_bots_building = 0
+def part2():
+    minutes = 32
+    totals = []
+    for i in range(3):
+        best = run_blueprint(blueprints[i+1], minutes)
+        totals.append(best)
+        print(f'blueprint {i + 1} has best {best}')
+    print(totals[0] * totals[1] * totals[2])
 
-        if clay_bots_building:
-            print(f"\tadding {clay_bots_building} clay bots")
-        clay_bots += clay_bots_building
-        clay_bots_building = 0
-
-        if obsidian_bots_building:
-            print(f"\tadding {obsidian_bots_building} obsidian bots")
-        obsidian_bots += obsidian_bots_building
-        obsidian_bots_building = 0
-
-        if geode_bots_building:
-            print(f"\tadding {geode_bots_building} geode bots")
-        geode_bots += geode_bots_building
-        geode_bots_building = 0
-
-
-    #return how many geodes we cracked
-    return geode
-
-
-print(run(blueprints[0], 24))
+part2()
