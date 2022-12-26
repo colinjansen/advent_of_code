@@ -57,5 +57,7 @@ def part1(lines):
     print('getting storm permutations')
     perms = storm_permutations(lines)
     print(f'found {len(perms)} variations')
+    for p in perms:
+        print(f'{perms[p]}')
 
 part1(lines)
