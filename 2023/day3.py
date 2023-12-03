@@ -2,12 +2,23 @@ from functools import reduce
 
 with open("_input/day3.txt", encoding='utf8') as f:
     lines = f.read().splitlines()
-
+rot = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1 ,1)]
 # convenient constants
 max_x = len(lines[0]) - 1
 max_y = len(lines) - 1
-# get all the starting points
-rot = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1 ,1)]
+
+
+def spin(coord, callback):
+    """
+    spin the wheel
+    """
+    x, y = coord
+    for r in [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1 ,1)]:
+        _x = x + r[0]
+        _y = y + r[1]
+        if (_x < 0 or _x > max_x) or (_y < 0 or _y > max_y):
+            continue
+        callback(_x, _y)
 
 
 def find_all_numbers(coordinates_to_search):
@@ -44,16 +55,13 @@ def find_adjacent_numbers(gears, numbers):
     find numbers that are adjacent to the gears
     """
     result = []
+    def add_adjacent_number(_x, _y):
+        n = get_number(numbers, _x, _y)
+        if n and n not in adjacent_numbers:
+            adjacent_numbers.append(n)
     for x, y in gears:
         adjacent_numbers = []
-        for r in rot:
-            _x = x + r[0]
-            _y = y + r[1]
-            if (_x < 0 or _x > max_x) or (_y < 0 or _y > max_y):
-                continue
-            n = get_number(numbers, _x, _y)
-            if n and n not in adjacent_numbers:
-                adjacent_numbers.append(n)
+        spin((x, y), lambda x, y: add_adjacent_number(x, y))
         result.append(adjacent_numbers)
     return result
     
@@ -70,6 +78,7 @@ def get_number(numbers, x, y):
     return None
 
 
+
 queue = []
 gears = []
 # get all spaces adjacent to a symbol and mark where the 'gears' are
@@ -81,12 +90,7 @@ for y, row in enumerate(lines):
             # take a special note for the gears
             if c == '*':
                 gears.append((x, y))
-            for r in rot:
-                _x = x + r[0]
-                _y = y + r[1]
-                if (_x < 0 or _x > max_x) or (_y < 0 or _y > max_y):
-                    continue
-                queue.append((_x, _y))
+            spin((x, y), lambda x, y: queue.append((x, y)))
 
 # find all numbers
 numbers = find_all_numbers(queue)
