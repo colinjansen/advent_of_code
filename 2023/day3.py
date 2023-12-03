@@ -2,7 +2,7 @@ from functools import reduce
 
 with open("_input/day3.txt", encoding='utf8') as f:
     lines = f.read().splitlines()
-rot = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1 ,1)]
+    
 # convenient constants
 max_x = len(lines[0]) - 1
 max_y = len(lines) - 1
