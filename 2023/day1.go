@@ -1,13 +1,12 @@
 package main
 
 import (
+	"aoc/2023/utils"
 	"fmt"
-	"os"
 	"regexp"
-	"strings"
 )
 
-func trans(num string) int {
+func translate(num string) int {
 	switch num {
 	case "one":
 		return 1
@@ -33,20 +32,11 @@ func trans(num string) int {
 }
 
 func main() {
-	content, err := os.ReadFile("_input/day1.txt")
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return
+	part1 := 0
+	regex := regexp.MustCompile(`(\d|one|two|three|four|five|six|seven|eight|nine)`)
+	for _, line := range utils.GetFileLines("_input/day1.txt") {
+		matches := regex.FindAllString(line, -1)
+		part1 += translate(matches[0]) + translate(matches[len(matches)-1])
 	}
-
-	lines := strings.Split(string(content), "\n")
-
-	t := 0
-	re := regexp.MustCompile(`(\d|one|two|three|four|five|six|seven|eight|nine)`)
-	for _, line := range lines {
-		res := re.FindAllString(line, -1)
-		c := trans(res[0]) + trans(res[len(res)-1])
-		t += c
-	}
-	fmt.Println(t)
+	fmt.Println(part1)
 }
