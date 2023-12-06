@@ -82,7 +82,7 @@ func inSeeds(seeds []int, n int) bool {
 			return true
 		}
 	}
-	return false
+	return falseHi
 }
 
 func part1(seeds []int, maps map[int][][]int) int {
