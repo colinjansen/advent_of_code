@@ -34,7 +34,7 @@ func translate(num string) int {
 func main() {
 	part1 := 0
 	regex := regexp.MustCompile(`(\d|one|two|three|four|five|six|seven|eight|nine)`)
-	for _, line := range utils.GetFileLines("_input/day1.txt") {
+	for _, line := range utils.GetFileLines("../_input/day1.txt") {
 		matches := regex.FindAllString(line, -1)
 		part1 += translate(matches[0]) + translate(matches[len(matches)-1])
 	}

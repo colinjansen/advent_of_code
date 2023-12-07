@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	lines := utils.GetFileLines("_input/day4.txt")
+	lines := utils.GetFileLines("../_input/day4.txt")
 	part1 := 0
 	cardDuplicateCount := make(map[int]int)
 	updateCardCountForPart2 := func(cardNumber int, matches int) {
@@ -51,7 +51,7 @@ func main() {
 		part1 += 1 << (matches / 2)
 
 		updateCardCountForPart2(cardNumber, matches)
-	}
+	}../
 
 	fmt.Printf("part 1: %d\n", part1)
 

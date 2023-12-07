@@ -8,7 +8,7 @@ import (
 )
 
 func load() ([]int, map[int][][]int) {
-	content, err := os.ReadFile("_input/day5.txt")
+	content, err := os.ReadFile("../_input/day5.txt")
 	if err != nil {
 		panic(err)
 	}

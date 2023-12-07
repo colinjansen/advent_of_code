@@ -91,7 +91,7 @@ func findNumbers(coordinatesToSearch [][2]int) map[int][][2]int {
 }
 
 func main() {
-	lines = utils.GetFileLines("_input/day3.txt")
+	lines = utils.GetFileLines("../_input/day3.txt")
 
 	maxX = len(lines[0]) - 2
 	maxY = len(lines) - 1

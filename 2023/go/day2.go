@@ -46,7 +46,7 @@ func part2(gameString string) int {
 }
 
 func main() {
-	content, err := os.ReadFile("_input/day2.txt")
+	content, err := os.ReadFile("../_input/day2.txt")
 	if err != nil {
 		panic(err)
 	}
