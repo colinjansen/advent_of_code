@@ -7,15 +7,6 @@ def get_to_zero(source):
         entries.append(source)
     return entries
 
-def e2x(line):
-    entries = get_to_zero([int(x) for x in line.split()])
-    accumulator_1 = 0
-    accumulator_2 = 0
-    for i in range(len(entries)-2, -1, -1):
-        accumulator_1 = entries[i][-1] + accumulator_1
-        accumulator_2 = entries[i][0] - accumulator_2
-    return (accumulator_1, accumulator_2)
-
 def ex(line):
     entries = get_to_zero([int(x) for x in line.split()])
     accumulator_1 = reduce(lambda a, i: entries[i][-1] + a, [i for i in range(len(entries) - 2, -1, -1)], 0)
