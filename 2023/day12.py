@@ -1,12 +1,11 @@
-import threading
+import functools
+
 
 with open("_input/day12.txt", encoding="utf8") as f:
     lines = f.read().splitlines()
 
 def gen(s, nums):
-    #print(s, nums)
     s = '.' + s + '.'
-
     def find_places(n, start = 0):
         def fit():
             if s[i-1] not in ['.','?']:
@@ -33,10 +32,10 @@ def gen(s, nums):
         p = r[0] + n + 1
     return list(reversed(res))
 
+@functools.cache
 def get_count(res, m, i = 0, k = [], s = []):
     for r in res[i][0]:
         if (r + res[i][1]-1) <= m:
-            #print([*k, r], r, m)
             if len(k) + 1 == len(res):
                 s.append([*k, r])
             if i < len(res)-1:
@@ -61,13 +60,10 @@ def test(pattern, nums, solutions):
         for i, _ in enumerate(s):
             for j in range(s[i], s[i]+nums[i]):
                 c[j] = '#'
-                
-    
         #print(pattern, nums)
         if False == check(c):
             bad += 1
             #print(''.join(c))
-
     return bad
 
 t = 0
@@ -75,23 +71,6 @@ b = 0
 for l in lines:
     s, p = l.split()
     n = list(map(lambda x: int(x), p.split(',')))
-    res = gen(s, n)
-    sol = get_count(res, len(s), 0, [], [])
-    t += len(sol)
-    b += test(s, n, sol)
-
-print(t - b)
-
-
-t = 0
-b = 0
-c = 0
-
-for i, l in enumerate(lines):
-    s, p = l.split()
-    n = list(map(lambda x: int(x), p.split(',')))
-    s = f'{s}?{s}?{s}?{s}?{s}'
-    n = n*5
     res = gen(s, n)
     sol = get_count(res, len(s), 0, [], [])
     t += len(sol)
