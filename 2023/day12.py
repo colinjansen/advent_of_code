@@ -1,3 +1,5 @@
+import threading
+
 with open("_input/day12.txt", encoding="utf8") as f:
     lines = f.read().splitlines()
 
@@ -43,13 +45,7 @@ def get_count(res, m, i = 0, k = [], s = []):
 
 def test(pattern, nums, solutions):
     bad = 0
-    #print(pattern, nums)
-    for s in solutions:
-        s = list(reversed(s))
-        c = list('.'*len(pattern))
-        for i, _ in enumerate(s):
-            for j in range(s[i], s[i]+nums[i]):
-                c[j] = '#'
+
     def check(c):        
         for i, _ in enumerate(pattern):
             if c[i] == '.' and pattern[i] not in ['.','?']:
@@ -58,10 +54,20 @@ def test(pattern, nums, solutions):
                 return False
         return True
     
-    if False == check(c):
-        bad += 1
-        print(pattern, nums)
-        print(''.join(c))
+    #print(pattern, nums)
+    for s in solutions:
+        s = list(reversed(s))
+        c = list('.'*len(pattern))
+        for i, _ in enumerate(s):
+            for j in range(s[i], s[i]+nums[i]):
+                c[j] = '#'
+                
+    
+        #print(pattern, nums)
+        if False == check(c):
+            bad += 1
+            #print(''.join(c))
+
     return bad
 
 t = 0
@@ -73,5 +79,22 @@ for l in lines:
     sol = get_count(res, len(s), 0, [], [])
     t += len(sol)
     b += test(s, n, sol)
-#test('????#?####.?#?', [6,2], [[11, 4], [12, 4]])
-print(t, b, t - b)
+
+print(t - b)
+
+
+t = 0
+b = 0
+c = 0
+
+for i, l in enumerate(lines):
+    s, p = l.split()
+    n = list(map(lambda x: int(x), p.split(',')))
+    s = f'{s}?{s}?{s}?{s}?{s}'
+    n = n*5
+    res = gen(s, n)
+    sol = get_count(res, len(s), 0, [], [])
+    t += len(sol)
+    b += test(s, n, sol)
+
+print(t - b)
