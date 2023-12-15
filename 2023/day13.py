@@ -61,4 +61,5 @@ for map in maps:
     b = find_alt(map, a)
     t1 += a
     t2 += b
+    
 print(t1, t2)

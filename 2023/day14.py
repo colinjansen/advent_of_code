@@ -1,3 +1,5 @@
+from time import time
+
 map = []
 with open("_input/day14.txt", encoding="utf8") as f:
     for line in f.read().splitlines():
@@ -77,8 +79,10 @@ def cycle(M):
     M = east(M)
     return M
 
+def measure(f):
+    s = time()
+    print(f'{f()} in elapsed time: {time()-s:.3f}s')
 
-print(calc(north(copy(map))))
 
 def get_hash(M):
     return ''.join([''.join(r) for r in M])
@@ -94,14 +98,16 @@ def get_cycle_repeat(M, max = 1_000_000_000):
         if h in MEM:
             return MEM, h, i
         MEM[h] = i
+        
+def part_1():
+    return calc(north(copy(map)))
+    
+def part_2():
+    mem, h, i = get_cycle_repeat(copy(map))
+    start = mem[h]
+    rep = i - mem[h]
+    D = start + (1_000_000_000-start) % rep
+    return calc(get_map(list(mem)[D-1], len(map[0])))
 
-
-mem, h, i = get_cycle_repeat(copy(map))
-start = mem[h]
-rep = i - mem[h]
-D = start + (1_000_000_000-start) % rep
-print(start, rep, i, D)
-
-print(calc(get_map(list(mem)[D-1], len(map[0]))))
-print(calc(get_map(list(mem)[D], len(map[0]))))
-print(calc(get_map(list(mem)[D+1], len(map[0]))))
+measure(part_1)
+measure(part_2)
