@@ -1,5 +1,3 @@
-
-
 with open("_input/day16.txt", encoding="utf8") as f:
     lines = f.read().splitlines()
 
@@ -45,7 +43,10 @@ def move(r):
 def oob(r,c):
     return r < 0 or c < 0 or r >= len(M) or c >= len(M[0])
 
-def show():
+def show(V):
+    print('')
+    print(f'showing variation with {len(V)} energized tiles')
+    print('')
     S = []
     for line in M:
         S.append(line.copy())
@@ -74,8 +75,10 @@ def energize(r):
                 if (m[0], m[1]) not in V:
                     V[(m[0], m[1])] = []
                 V[(m[0], m[1])].append(m[2])
+                
     return len(V)
 
+print('calculating the single point of entry')
 print('part 1: ', energize((0,0,'R')))
 
 best = 0
@@ -87,4 +90,4 @@ for r in range(len(M)):
 print('calculating top and bottom edges...')
 for c in range(len(M[0])):
     best = max(best, energize((0, c, 'D')), energize((max_r, c, 'U')))
-print(best)
+print('part 2: ', best)
