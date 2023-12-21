@@ -28,26 +28,20 @@ def parse():
             RULES[n] = (R, D)
 
 def run_rules(o, rule):
-    rules, de = rule
+    rules, defaultDestination = rule
     for r in rules:
-        a, b, c, d = r
-        if b == '>' and o[a] > c: return d
-        if b == '<' and o[a] < c: return d
-    return de
+        node, operation, value, destination = r
+        if operation == '>' and o[node] > value: return destination
+        if operation == '<' and o[node] < value: return destination
+    return defaultDestination
     
-def run(o, start='in'):
-    r = start
-    while r not in 'RA':
-        r = run_rules(o, RULES[r])
-    if r == 'A':
-        return sum(o.values())
-    return 0
+def run(o, node):
+    while node not in 'RA':
+        node = run_rules(o, RULES[node])
+    return sum(o.values()) if node == 'A' else 0
 
 def part1():
-    t = 0
-    for o in OBJ:
-        t += run(o)
-    return t
+    return sum([run(o, 'in') for o in OBJ])
 
 parse()
 
