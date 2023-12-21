@@ -49,6 +49,12 @@ def part1():
         t += run(o)
     return t
 
+def part2():
+    for r in RULES:
+        print(r, RULES[r])
+        
+
 parse()
 
 print(f'part 1: {part1()}')
+print(f'part 2: {part2()}')
