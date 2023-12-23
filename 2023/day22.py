@@ -12,7 +12,6 @@ def parse():
             B.append(((int(a), int(b), int(c)), (int(d), int(e), int(f))))
     return B
 
-
 def make_points(blocks):
     p = set()
     for b in blocks:
@@ -46,7 +45,7 @@ def drop(blocks):
                 h = max(h, highest_points[(x, y)])
         return h
 
-    def update_points(block):
+    def update_highest_points(block):
         z = max(block[0][2], block[1][2])
         for x in range(block[0][0], block[1][0] + 1):
             for y in range(block[0][1], block[1][1] + 1):
@@ -55,17 +54,19 @@ def drop(blocks):
                 else:
                     highest_points[(x, y)] = max(highest_points[(x, y)], z)
 
-
     dropped = []
+    count = 0
     while blocks:
         idx, y = lowest_block(blocks)
         b = blocks.pop(idx)
         d = highest_point(b) + 1 - y
-        if d <= 0:
+        if d < 0:
+            count += 1
             b = ((b[0][0], b[0][1], b[0][2] + d), (b[1][0], b[1][1], b[1][2] + d))
         dropped.append(b)
-        update_points(b)
-    return dropped
+        update_highest_points(b)
+
+    return dropped, count
 
 def insersecting_block(blocks, point):
     for b in blocks:
@@ -85,9 +86,11 @@ def supporting_blocks(blocks, b):
 
 
 blocks = parse()
-blocks = drop(blocks)
+blocks, dropped_count = drop(blocks)
 
-part1 = set()
+stable_bricks = set()
+unstable_bricks = set()
+
 for b in blocks:
     supporting = set()
     low_z = min(b[0][2], b[1][2]) - 1
@@ -102,7 +105,19 @@ for b in blocks:
                     supporting.add(bl)
 
     if len(supporting) == 0:
-        part1.add(b)
+        stable_bricks.add(b)
+    else: 
+        unstable_bricks.add(b)
 
-print(len(part1))
+print('part 1: ', len(stable_bricks))
 
+total_part_2 = 0
+print(f'doing part 2 for {len(unstable_bricks)} bricks')
+for i, ub in enumerate(unstable_bricks):
+    if (i % 100 == 0):
+        print(f'{i} done')
+    nb = blocks.copy()
+    _ = nb.pop(blocks.index(ub))
+    _, c = drop(nb)
+    total_part_2 += c
+print('part 2: ', total_part_2)
