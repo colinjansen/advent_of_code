@@ -1,4 +1,5 @@
 import re
+import copy
 
 OBJ = []
 RULES = {}
@@ -43,6 +44,50 @@ def run(o, node):
 def part1():
     return sum([run(o, 'in') for o in OBJ])
 
-parse()
+def sum_state(S):
+    t = 1
+    for c in 'xmas':
+        t *= S[c][1] - S[c][0] + 1
+    return t
 
+def mod_state(S, n, s, v):
+    if s == '>':
+        S[n][0] = max(S[n][0], v + 1)
+    if s == '<':
+        S[n][1] = min(S[n][1], v - 1)
+    if s == '>=':
+        S[n][0] = max(S[n][0], v)
+    if s == '<=':
+        S[n][1] = min(S[n][1], v)
+    return S
+
+def invalid_state(S):
+    for c in 'xmas':
+        if S[c][0] > S[c][1]:
+            return True
+    return False
+
+parse()
 print(f'part 1: {part1()}')
+
+Q = []
+Q.append(('in', {'x':[1,4000], 'm':[1,4000], 'a':[1,4000], 's':[1,4000]}))
+
+part2 = 0
+while Q:
+    n, S = Q.pop()
+    if n == 'R' or invalid_state(S):
+        continue
+    if n == 'A':
+        part2 += sum_state(S)
+        continue
+    
+    for r in RULES[n]:
+        if isinstance(r, list): # fancy rules
+            for _n, _s, _v, _d in r:
+                Q.append((_d, mod_state(copy.deepcopy(S), _n, _s, _v)))
+                S = mod_state(copy.deepcopy(S), _n, '<=' if _s == '>' else '>=', _v)
+        else:
+            Q.append((r, S))
+
+print(f'part 2: {part2}')
