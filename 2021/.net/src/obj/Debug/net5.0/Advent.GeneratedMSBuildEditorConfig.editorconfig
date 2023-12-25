@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Advent
-build_property.ProjectDir = c:\Users\cjans\OneDrive\scraps\advent_of_code\2021\.net\src\
+build_property.ProjectDir = c:\Users\cjans\OneDrive\Desktop\advent_of_code\2021\.net\src\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
