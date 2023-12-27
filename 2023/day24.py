@@ -1,3 +1,5 @@
+import sympy
+
 
 def parse():
     H = []
@@ -59,5 +61,20 @@ def count_intersections(H, _min=7, _max=27):
             t += 1
     return t
 
+def part1():
+    return count_intersections(parse(), 200_000_000_000_000, 400_000_000_000_000)
 
-print(count_intersections(parse(), 200_000_000_000_000, 400_000_000_000_000))
+print(f'part1: {part1()}')
+
+def part2():
+    H = parse()
+    xr, yr, zr, vxr, vyr, vzr = sympy.symbols('xr yr zr vxr vyr vzr')
+    equations = []
+    for sx, sy, sz, vx, vy, vz in H:
+        equations.append((xr - sx) * (vy - vyr) - (yr - sy) * (vx - vxr))
+        equations.append((yr - sy) * (vz - vzr) - (zr - sz) * (vy - vyr))
+    answers = sympy.solve(equations, [xr, yr, zr, vxr, vyr, vzr])
+    x, y, z, _, _, _ = answers[0]
+    return x + y + z
+
+print(f'part 2:', part2())
