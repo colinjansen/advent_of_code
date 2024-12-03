@@ -1,30 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cjans\\Desktop\\Advent of Code\\2021\\.net\\src\\Advent.csproj": {}
+    "/Users/cjansen/Development/advent_of_code/2021/.net/src/Advent.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cjans\\Desktop\\Advent of Code\\2021\\.net\\src\\Advent.csproj": {
+    "/Users/cjansen/Development/advent_of_code/2021/.net/src/Advent.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cjans\\Desktop\\Advent of Code\\2021\\.net\\src\\Advent.csproj",
+        "projectUniqueName": "/Users/cjansen/Development/advent_of_code/2021/.net/src/Advent.csproj",
         "projectName": "Advent",
-        "projectPath": "C:\\Users\\cjans\\Desktop\\Advent of Code\\2021\\.net\\src\\Advent.csproj",
-        "packagesPath": "C:\\Users\\cjans\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cjans\\Desktop\\Advent of Code\\2021\\.net\\src\\obj\\",
+        "projectPath": "/Users/cjansen/Development/advent_of_code/2021/.net/src/Advent.csproj",
+        "packagesPath": "/Users/cjansen/.nuget/packages/",
+        "outputPath": "/Users/cjansen/Development/advent_of_code/2021/.net/src/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\cjans\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "/Users/cjansen/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -37,6 +32,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -54,16 +54,31 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[5.0.0, 5.0.0]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-x64",
+              "version": "[5.0.17, 5.0.17]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[5.0.0, 5.0.0]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.201\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.404/RuntimeIdentifierGraph.json"
         }
       }
     }

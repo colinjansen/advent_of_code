@@ -1,10 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "FHnm5aFQdSEYPDHDl+rUtLk1H/z/U8YRiA4Tc9ITrU8k/lcUItwx1CQHwoZvZYIN2byIeOST+67x5qTp165Zzw==",
+  "dgSpecHash": "t2Evt8ZYt08=",
   "success": true,
-  "projectFilePath": "C:\\Users\\cjans\\Desktop\\Advent of Code\\2021\\.net\\src\\Advent.csproj",
+  "projectFilePath": "/Users/cjansen/Development/advent_of_code/2021/.net/src/Advent.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\cjans\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+    "/Users/cjansen/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
+    "/Users/cjansen/.nuget/packages/microsoft.netcore.app.ref/5.0.0/microsoft.netcore.app.ref.5.0.0.nupkg.sha512",
+    "/Users/cjansen/.nuget/packages/microsoft.aspnetcore.app.ref/5.0.0/microsoft.aspnetcore.app.ref.5.0.0.nupkg.sha512",
+    "/Users/cjansen/.nuget/packages/microsoft.netcore.app.host.osx-x64/5.0.17/microsoft.netcore.app.host.osx-x64.5.0.17.nupkg.sha512"
   ],
   "logs": []
 }
