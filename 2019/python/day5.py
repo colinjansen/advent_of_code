@@ -20,12 +20,17 @@ def get_param(code, n, p, CODES):
     
 def set_param(val, p, CODES):
     CODES[CODES[p]] = val
-    
-def go(CODES):
+
+
+def go(input):
     P = 0
+    last = {}
     while CODES[P] != 99:
         code = CODES[P]
         op = get_opcode(CODES[P])
+        if op < 0 or op > 8:
+            print('NOOO', op)
+            return
         if op == 1:
             v1 = get_param(code, 1, P, CODES) 
             v2 = get_param(code, 2, P, CODES)
@@ -37,15 +42,37 @@ def go(CODES):
             set_param(v1*v2, P+3, CODES)
             P += 4
         if op == 3:
-            CODES[CODES[P+1]] = 1 
+            CODES[CODES[P+1]] = input
             P += 2
         if op == 4:
             print(CODES[CODES[P+1]])
             P += 2
+        if op == 5:
+            v1 = get_param(code, 1, P, CODES)
+            v2 = get_param(code, 2, P, CODES)
+            if v1 != 0:
+                P = v2
+            else:
+                P += 3
+        if op == 6:
+            v1 = get_param(code, 1, P, CODES)
+            v2 = get_param(code, 2, P, CODES)
+            if v1 == 0:
+                P = v2
+            else:
+                P += 3
+        if op == 7:
+            v1 = get_param(code, 1, P, CODES) 
+            v2 = get_param(code, 2, P, CODES)
+            set_param(1 if v1 < v2 else 0, P+3, CODES)
+            P += 4
+        if op == 8:
+            v1 = get_param(code, 1, P, CODES) 
+            v2 = get_param(code, 2, P, CODES)
+            set_param(1 if v1 == v2 else 0, P+3, CODES)
+            P += 4
     return 
 
-
-# for i in range(100):
-#     for j in range(100):
-#         if 19690720 == go(i, j, CODES[:]):
-#             print(100 * i + j)
+go(7)
+go(8)
+go(9)
