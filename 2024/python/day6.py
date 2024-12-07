@@ -1,3 +1,5 @@
+from datetime import datetime
+import multiprocessing
 
 MAP = []
 with open('2024/_input/day6.txt') as fp:
@@ -31,7 +33,7 @@ def find_guard():
 def on_map(x, y):
     return x >= 0 and y >= 0 and x < len(MAP) and y < len(MAP[0])
 
-def get_char(x, y):
+def get_char(x, y, BLOCK=(-1,-1)):
     if x == BLOCK[0] and y == BLOCK[1]:
         return '#'
     if not on_map(x, y):
@@ -59,9 +61,9 @@ def part1():
         # remember this location, distinctly
         V.add((r, c))
 
-    print(len(V))
+    return len(V)
 
-def is_loop():
+def is_loop(block):
     # initial direction
     dr, dc = UP
     # initial position
@@ -71,7 +73,7 @@ def is_loop():
     while on_map(r, c):
 
         # turn if we need to
-        ch = get_char(r + dr, c + dc)
+        ch = get_char(r + dr, c + dc, block)
         while ch == '#':
             dr, dc = rotate((dr, dc))
             ch = get_char(r + dr, c + dc)
@@ -89,17 +91,19 @@ def is_loop():
 
     return False
 
-def part2():
-    t = 0
-    for i, r in enumerate(MAP):
-        for j, c in enumerate(r):
-            if MAP[i][j] != '.':
-                continue
-            BLOCK = (i, j)
-            r = is_loop()
-            if r:
-                t += 1
-    print(t)
+if __name__ == '__main__':
+    start = datetime.now()
 
-part1()
-part2()
+    print('part 1:', part1())
+
+    with multiprocessing.Pool(16) as pool:
+        blocks = []
+        for i, r in enumerate(MAP):
+            for j, c in enumerate(r):
+                if MAP[i][j] != '.':
+                    continue
+                blocks.append((i, j))
+        print('part 2:', sum([1 if r else 0 for r in pool.map(is_loop, blocks)]))
+        pool.close()
+
+    print('elapsed:', datetime.now() - start)
