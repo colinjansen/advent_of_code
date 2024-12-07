@@ -73,6 +73,4 @@ def go(input):
             P += 4
     return 
 
-go(7)
-go(8)
-go(9)
+go(5)

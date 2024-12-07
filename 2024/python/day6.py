@@ -11,8 +11,6 @@ DOWN = (1, 0)
 RIGHT = (0, 1)
 LEFT = (0, -1)
 
-BLOCK = (-1, -1)
-
 def rotate(d):
     if d == DOWN:
         return LEFT
@@ -22,19 +20,20 @@ def rotate(d):
         return RIGHT
     if d == RIGHT:
         return DOWN
+    return (0, 0)
 
 def find_guard():
     for i, r in enumerate(MAP):
         for j, c in enumerate(r):
             if c == '^':
                 return (i, j)
-    return None
+    return (-1, -1)
 
 def on_map(x, y):
     return x >= 0 and y >= 0 and x < len(MAP) and y < len(MAP[0])
 
-def get_char(x, y, BLOCK=(-1,-1)):
-    if x == BLOCK[0] and y == BLOCK[1]:
+def get_char(x, y, block=(-1,-1)):
+    if x == block[0] and y == block[1]:
         return '#'
     if not on_map(x, y):
         return None
@@ -57,11 +56,11 @@ def part1():
         # move by the movement delta
         r = r + dr
         c = c + dc
-        
+
         # remember this location, distinctly
         V.add((r, c))
 
-    return len(V)
+    return V
 
 def is_loop(block):
     # initial direction
@@ -86,24 +85,16 @@ def is_loop(block):
         DC = (r, c, dr, dc)
         if DC in V:
             return True
-        
+
         V.add(DC)
 
     return False
 
 if __name__ == '__main__':
     start = datetime.now()
-
-    print('part 1:', part1())
-
+    path = part1()
+    print('part 1:', len(path), 'steps')
     with multiprocessing.Pool(16) as pool:
-        blocks = []
-        for i, r in enumerate(MAP):
-            for j, c in enumerate(r):
-                if MAP[i][j] != '.':
-                    continue
-                blocks.append((i, j))
-        print('part 2:', sum([1 if r else 0 for r in pool.map(is_loop, blocks)]))
+        print('part 2:', sum([1 if r else 0 for r in pool.map(is_loop, path)]), 'possibilities')
         pool.close()
-
     print('elapsed:', datetime.now() - start)
