@@ -1,6 +1,5 @@
-import re
-from itertools import combinations, permutations
-from collections import defaultdict, Counter
+from collections import defaultdict
+
 
 map = []
 with open('2024/_input/day8.txt') as fp:
@@ -39,7 +38,6 @@ def get_anti_nodes_part2(l):
             anti_nodes.append((l[j][0], l[j][1]))
             dx = l[i][0] - l[j][0]
             dy = l[i][1] - l[j][1]
-            
             a1 = (l[j][0] - dx, l[j][1] - dy)
             while on_map(a1):
                 anti_nodes.append(a1)
