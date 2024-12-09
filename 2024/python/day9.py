@@ -5,12 +5,6 @@ import re
 with open('2024/_input/day9.txt') as f:
     line = f.readline().strip()
 
-def checksum(id, offset, size):
-    t = 0
-    for i in range(size):
-        t += (offset + i) * id
-    return t
-
 def part1(line):
     disk = []
     mode = 1
@@ -70,6 +64,12 @@ def part2(line):
             mode = 1 - mode
         return disk, free
     
+    def checksum(id, offset, size):
+        t = 0
+        for i in range(size):
+            t += (offset + i) * id
+        return t
+
     disk, free = get_disk()
     
     for key in sorted(disk.keys(), reverse=True):
