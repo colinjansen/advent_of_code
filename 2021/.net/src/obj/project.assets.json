@@ -52,25 +52,33 @@
     ]
   },
   "packageFolders": {
-    "/Users/cjansen/.nuget/packages/": {}
+    "C:\\Users\\cjansen\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/cjansen/Development/advent_of_code/2021/.net/src/Advent.csproj",
+      "projectUniqueName": "D:\\_dev\\advent_of_code\\2021\\.net\\src\\Advent.csproj",
       "projectName": "Advent",
-      "projectPath": "/Users/cjansen/Development/advent_of_code/2021/.net/src/Advent.csproj",
-      "packagesPath": "/Users/cjansen/.nuget/packages/",
-      "outputPath": "/Users/cjansen/Development/advent_of_code/2021/.net/src/obj/",
+      "projectPath": "D:\\_dev\\advent_of_code\\2021\\.net\\src\\Advent.csproj",
+      "packagesPath": "C:\\Users\\cjansen\\.nuget\\packages\\",
+      "outputPath": "D:\\_dev\\advent_of_code\\2021\\.net\\src\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
       "configFilePaths": [
-        "/Users/cjansen/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\cjansen\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
       ],
       "sources": {
-        "https://api.nuget.org/v3/index.json": {}
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://pkgs.dev.azure.com/LawDepot/LawDepot/_packaging/NugetADO/nuget/v3/index.json": {}
       },
       "frameworks": {
         "net5.0": {
@@ -109,26 +117,12 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
-        "downloadDependencies": [
-          {
-            "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[5.0.0, 5.0.0]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Host.osx-x64",
-            "version": "[5.0.17, 5.0.17]"
-          },
-          {
-            "name": "Microsoft.NETCore.App.Ref",
-            "version": "[5.0.0, 5.0.0]"
-          }
-        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.404/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.307\\RuntimeIdentifierGraph.json"
       }
     }
   }
