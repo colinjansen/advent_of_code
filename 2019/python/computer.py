@@ -30,6 +30,9 @@ class Computer:
         self.codes = self.original.copy()
         self.input_position = 0
 
+    def set_memory(self, address, value):
+        self.codes[address] = value
+
     def set_input(self, input):
         self.input = input
     
@@ -58,7 +61,6 @@ class Computer:
     
     def write(self, val):
         mode = get_mode(self.codes[self.position], 1)
-        self.input_position += 1
 
         if mode == 0: # position mode
             self.codes[self.codes[self.position + 1]] = val
@@ -68,7 +70,16 @@ class Computer:
 
         self.position += 2
 
-    def go(self, output_function=None):
+    def default_input(self):
+        v = self.input[self.input_position]
+        self.input_position += 1
+        return v
+    
+    def go(self, output_function=None, input_function=None):
+
+        if input_function == None:
+            input_function = self.default_input
+
         while True:
             op = get_opcode(self.codes[self.position])
             if self.debug:
@@ -88,10 +99,10 @@ class Computer:
                 self.position += 4
 
             if op == 3:
-                self.write(self.input[self.input_position])
+                self.write(input_function())
 
             if op == 4: # OUTPUT
-                v1 = self.get_param( 1)
+                v1 = self.get_param(1)
                 self.position += 2
                 if output_function:
                     output_function(v1)
