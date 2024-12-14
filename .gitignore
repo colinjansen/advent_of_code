@@ -1,4 +1,6 @@
 _input/
 .vs/
 .DS_Store
-
+*.mp4
+*.gif
+*.png

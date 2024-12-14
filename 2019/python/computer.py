@@ -80,7 +80,7 @@ class Computer:
         if input_function == None:
             input_function = self.default_input
 
-        while True:
+        while not self.halted:
             op = get_opcode(self.codes[self.position])
             if self.debug:
                 print(self.position)

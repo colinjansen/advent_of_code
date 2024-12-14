@@ -1,12 +1,12 @@
-import os
 from computer import Computer
 from collections import defaultdict
+from terminalRecorder import TerminalRecorder
 
 
 with open('2019/_input/day13.txt') as f:
     program = f.readline().strip()
 
-def show(map):
+def show(map, score):
     rows, cols = 0, 0
     for x, y in map:
         rows = max(rows, y)
@@ -29,8 +29,11 @@ def show(map):
         if t == 4:
             M[y][x] = 'o'
 
+    buffer = ''
     for row in M:
-        print(''.join(row))
+        buffer += ''.join(row) + '\n'
+    buffer += f'Score: {score}'
+    return buffer
 
 def part1(program):
     c = Computer(program)
@@ -41,7 +44,7 @@ def part1(program):
     while i < len(output):
         map[(output[i], output[i+1])] = output[i+2]
         i += 3
-
+    show(map, score)
     return len([1 for x in map.values() if x == 2])
 
 ball = None
@@ -49,10 +52,12 @@ paddle = None
 score = 0
 
 def part2(program):
+    tr = TerminalRecorder(width=38, height=22, font_size=24, bg_color="navy", text_color="white")
 
     def handle_output(v):
         global ball, paddle, score
         output.append(v)
+        cap = False
         if len(output) == 3:
             if output[0] == -1 and output[1] == 0:
                 score = output[2]
@@ -61,8 +66,12 @@ def part2(program):
                     paddle = (output[0], output[1])
                 if output[2] == 4:
                     ball = (output[0], output[1])
+                    cap = True
                 map[(output[0], output[1])] = output[2]
             output.clear()
+        
+        if cap:
+            tr.capture_frame(show(map, score))
 
     def handle_input():
         global ball, paddle
@@ -80,6 +89,7 @@ def part2(program):
     map = defaultdict(int)
     c.go(output_function=handle_output, input_function=handle_input)
 
+    tr.save_mp4("dy13.mp4")
     return score
 
 print('part 1', part1(program))
