@@ -1,3 +1,5 @@
+from terminalRecorder import TerminalRecorder
+
 def get_map():
     map = []
     walls = set()
@@ -12,7 +14,7 @@ def get_map():
                 line_width = len(line)
             if len(line) == line_width:
                 map.append(list(line))
-            if len(line) > line_width:
+            if len(line) != line_width:
                 instruction_set.append(list(line))
 
     width = len(map[0])
@@ -29,21 +31,23 @@ def get_map():
     return walls, blocks, P, width, height, instruction_set
 
 def show(width, height, walls, blocks, P):
+    buffer = ''
     for r in range(height):
         for c in range(width):
             if (r, c) in walls:
-                print('#', end='')
+                buffer += '#'
             elif (r, c) in blocks:
                 a = (r, c)
                 if a[1] < blocks[a][0][1]:
-                    print('[', end='')
+                    buffer += '['
                 else:
-                    print(']', end='')
+                    buffer += ']'
             elif (r, c) == P:
-                print('@', end='')
+                buffer += '@'
             else:
-                print(' ', end='')
-        print()
+                buffer += ' '
+        buffer += "\n"
+    return buffer
 
 def get_left_most_blocks(b):
     blocks = set()
@@ -149,7 +153,7 @@ def part2():
             if NP in blocks and not move_block2(NP, D):
                 return False
         P = NP
-    c = 0
+ 
     for instructions in instruction_set:
         for instruction in instructions:
             if instruction == '^':
@@ -160,12 +164,7 @@ def part2():
                 move((0, 1))
             if instruction == '<':
                 move((0, -1))
-
-            if c < 20:
-                c += 1
-                print(instruction)
-                show(width, height, walls, blocks, P)
-                print()
+    print(show(width, height, walls, blocks, P))
     return blocks
 
 print('part 1', sum( b[0] * 100 + b[1] for b in part1()))
