@@ -4,12 +4,15 @@ def get_map():
     blocks = set()
     P = (0, 0)
     instruction_set = []
+    line_width = None
     with open('2024/_input/day15.txt') as f:
         for line in f.readlines():
             line = line.strip()
-            if len(line) == 50:
+            if line_width is None:
+                line_width = len(line)
+            if len(line) == line_width:
                 map.append(list(line))
-            if len(line) > 50:
+            if len(line) > line_width:
                 instruction_set.append(list(line))
 
     width = len(map[0])
@@ -146,7 +149,7 @@ def part2():
             if NP in blocks and not move_block2(NP, D):
                 return False
         P = NP
-
+    c = 0
     for instructions in instruction_set:
         for instruction in instructions:
             if instruction == '^':
@@ -157,7 +160,12 @@ def part2():
                 move((0, 1))
             if instruction == '<':
                 move((0, -1))
-    show(width, height, walls, blocks, P)
+
+            if c < 20:
+                c += 1
+                print(instruction)
+                show(width, height, walls, blocks, P)
+                print()
     return blocks
 
 print('part 1', sum( b[0] * 100 + b[1] for b in part1()))
