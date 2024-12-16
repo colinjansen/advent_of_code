@@ -1,3 +1,5 @@
+import os
+import sys
 from terminalRecorder import TerminalRecorder
 
 def get_map():
@@ -110,6 +112,7 @@ def part2():
     walls = double_set(w)
     blocks = double_set(b)
     width *= 2
+
     P = (P[0], P[1]*2)
 
     def move_block(P, D):
@@ -153,7 +156,7 @@ def part2():
             if NP in blocks and not move_block2(NP, D):
                 return False
         P = NP
- 
+    
     for instructions in instruction_set:
         for instruction in instructions:
             if instruction == '^':
@@ -164,8 +167,10 @@ def part2():
                 move((0, 1))
             if instruction == '<':
                 move((0, -1))
+
     print(show(width, height, walls, blocks, P))
     return blocks
+
 
 print('part 1', sum( b[0] * 100 + b[1] for b in part1()))
 print('part 2', sum( b[0] * 100 + b[1] for b in get_left_most_blocks(part2())))
