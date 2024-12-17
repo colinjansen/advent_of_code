@@ -1,7 +1,3 @@
-import os
-import sys
-from terminalRecorder import TerminalRecorder
-
 def get_map():
     map = []
     walls = set()
@@ -49,7 +45,7 @@ def show(width, height, walls, blocks, P):
             else:
                 buffer += ' '
         buffer += "\n"
-    return buffer
+    return buffer.strip()
 
 def get_left_most_blocks(b):
     blocks = set()
@@ -128,33 +124,53 @@ def part2():
         del blocks[P]
         return True
 
-    def move_block2(P, D):
+    def move_block2(P, D, adds=[], removes=set()):
         A = blocks[P][0]
         NP1 = (P[0] + D[0], P[1] + D[1])
         NP2 = (A[0] + D[0], A[1] + D[1])
         if NP1 in walls or NP2 in walls:
-            return False
-        if NP1 in blocks and not move_block2(NP1, D):
-            return False
-        if NP2 in blocks and not move_block2(NP2, D):
-            return False
-        blocks[NP1] = [NP2]
-        blocks[NP2] = [NP1]
-        del blocks[P]
-        del blocks[A]
-        return True
+            return False, [], []
+        if NP1 in blocks:
+            c, a, r = move_block2(NP1, D, adds, removes)
+            if not c:
+                return False, [], []
+            else:
+                removes.update(r)
+                adds.extend(a)
+        if NP2 in blocks:
+            c, a, r = move_block2(NP2, D, adds, removes)
+            if not c:
+                return False, [], []
+            else:
+                removes.update(r)
+                adds.extend(a)
+        adds.append((NP1, NP2))
+        adds.append((NP2, NP1))
+        removes.add(P)
+        removes.add(A)
+        return True, adds, removes
     
     def move(D):
         nonlocal P
         NP = (P[0] + D[0], P[1] + D[1])
         if NP in walls:
-            return False
+            return
         if D[0] == 0:
             if NP in blocks and not move_block(NP, D):
-                return False
+                return
         else:
-            if NP in blocks and not move_block2(NP, D):
-                return False
+            if NP in blocks:
+                can, adds, removes = move_block2(NP, D)
+                if not can:
+                    return
+                else:
+                    for r in removes:
+                        if r in blocks:
+                            del blocks[r]
+                    for a, b in adds:
+                        blocks[a] = [b]
+                        blocks[b] = [a]
+                return
         P = NP
     
     for instructions in instruction_set:
@@ -167,10 +183,9 @@ def part2():
                 move((0, 1))
             if instruction == '<':
                 move((0, -1))
-
+                
     print(show(width, height, walls, blocks, P))
     return blocks
-
 
 print('part 1', sum( b[0] * 100 + b[1] for b in part1()))
 print('part 2', sum( b[0] * 100 + b[1] for b in get_left_most_blocks(part2())))
