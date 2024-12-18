@@ -79,4 +79,5 @@ for m in machines.values():
     v = check(m)
     if v:
         part2 += v
+        
 print(part1, part2)
