@@ -1,6 +1,4 @@
 from collections import defaultdict, deque
-from datetime import datetime
-
 
 def get_track():
     start = None
