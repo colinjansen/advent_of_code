@@ -65,36 +65,40 @@ def go(program=[], A=0, B=0, C=0):
     c.go(lambda x: output.append(x))
     return output
 
+for t in range(8):
+    print(1 << 3 | t)
+
+def deconstruct(program, answer=0):
+    """
+    Recursively deconstruct the program to find the answer
+
+    Thanks to HyperNeutrino for explaining how to accomplish
+    the deconstruction of the program.
+    """
+    if program == []: return answer
+    # keep things octal
+    for t in range(8):
+        # move our current answer left by one octal place
+        # and try the octal value for 't'
+        a = answer << 3 | t
+        # run our deconstructed program with the new answer
+        b = a % 8
+        b = b ^ 5
+        c = a >> b
+        b = b ^ 6
+        b = b ^ c
+        # if the last octal place of b matches the last value of
+        # our program, we have a match, recurse into the program
+        # again but chop off the bit we found
+        if b % 8 == program[-1]:
+            _answer = deconstruct(program[:-1], a)
+            # if we were unable to find an octal value that
+            # works, continue the loop
+            if _answer == None: continue
+            # if we found a solution, return it
+            return _answer
+
 print('part 1:', go(program, A, 0, 0))
+print('part 2:', deconstruct(program))
 
-A = 241575164155700
-A += 65
-print(go(program, A, 0, 0))
-print(program)
 
-# out = 0
-# check = int(''.join(str(d) for d in program))
-# count = 0
-# val = 10000000000000
-# while out != check:
-
-#     output = go(program, A, 0, 0)
-#     out = int(''.join(str(d) for d in output))
-    
-#     result = check - out
-#     print('check:', result, val)
-    
-#     # going down and we passed zero
-#     if val > 0 and result < 0:
-#         val //= 2
-#         val *= -1
-
-#     # gong up and we passed zero
-#     if val < 0 and result > 0:
-#         val //= 2
-#         val *= -1
-
-#     if val == 0:
-#         break
-
-#     A += val
