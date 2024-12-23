@@ -10,7 +10,7 @@ def can_create_value(target:int, nums:list[int], value:int, is_part_2: bool = Fa
         bool: Whether target can be created
     """
     # Base cases
-    if value == target:
+    if value == target and not nums:
         return True
     if value > target or not nums:
         return False
@@ -26,8 +26,8 @@ def can_create_value(target:int, nums:list[int], value:int, is_part_2: bool = Fa
             return True
 
     # Try multiplication and addition
-    return (can_create_value(target, rest, value * num, is_part_2) or
-            can_create_value(target, rest, value + num, is_part_2))
+    return (can_create_value(target, rest, value + num, is_part_2) or
+            can_create_value(target, rest, value * num, is_part_2))
 
 # Process input file
 with open('2024/_input/day7.txt') as fp:
