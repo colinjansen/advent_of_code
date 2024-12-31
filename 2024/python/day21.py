@@ -1,36 +1,7 @@
 from collections import deque
-from functools import cache
-
-"""
-KEYPAD
-+---+---+---+
-| 7 | 8 | 9 |
-+---+---+---+
-| 4 | 5 | 6 |
-+---+---+---+
-| 1 | 2 | 3 |
-+---+---+---+
-    | 0 | A |
-    +---+---+
-CONTROLS
-    +---+---+
-    | ^ | A |
-+---+---+---+
-| < | v | > |
-+---+---+---+
-"""
-KEYPAD = ["789","456","123"," 0A"]
-CONTROLS = [" ^A", "<v>"]
-CODES = [
-    '539A',
-    '964A',
-    '803A',
-    '149A',
-    '789A'
-]
+from functools import lru_cache
 
 class KeyPad:
-    cache = {}
 
     def __init__(self, keypad=[]):
         self.keypad = {}
@@ -41,12 +12,18 @@ class KeyPad:
                     self.keypad[(r, c)] = char
                     self.chars[char] = (r, c)
 
+    @lru_cache(None)
     def find_all_paths(self, key_from, key_to):
-        key = tuple([key_from, key_to])
-        
-        if key in self.cache:
-            return self.cache[key]
-        
+        """
+        find all possible paths from key_from to key_to
+
+        Args:
+            key_from (str): The starting key
+            key_to (str): The ending key
+
+        Returns:
+            list: A list of all possible paths from key_from to key_to
+        """
         r, c = self.chars[key_from]
         Q = deque([(r, c, [])])
         V = {}
@@ -63,50 +40,81 @@ class KeyPad:
             for dr, dc, d in [(0, 1, '>'), (0, -1, '<'), (1, 0, 'v'), (-1, 0, '^')]:
                 if (r + dr, c + dc) in self.keypad:
                     Q.append((r + dr, c + dc, [*p, d]))
-        
-        self.cache[key] = V[self.chars[key_to]]
 
-        return self.cache[key]
+        return [ ''.join(v)+'A' for v in V[self.chars[key_to]] ]
 
-    def get_sequences(self, code):
-        last = 'A'
-        sequences = None
-        for c in code:
-            paths = self.find_all_paths(last, c)
-            last = c
-            if sequences is None:
-                sequences = [[*p, 'A'] for p in paths]
-                continue
-                
-            new_sequences = []
-            for s in sequences:
-                for p in paths:
-                    new_sequences.append([*s, *p, 'A'])
-            sequences = new_sequences
-        return [''.join(s) for s in sequences]
+"""
+KEYPAD
++---+---+---+
+| 7 | 8 | 9 |
++---+---+---+
+| 4 | 5 | 6 |
++---+---+---+
+| 1 | 2 | 3 |
++---+---+---+
+    | 0 | A |
+    +---+---+
     
+CONTROLS
+    +---+---+
+    | ^ | A |
++---+---+---+
+| < | v | > |
++---+---+---+
+"""
 
-keypad = KeyPad(KEYPAD)
-controls = KeyPad(CONTROLS)
+KEYPAD = KeyPad(["789","456","123"," 0A"])
+CONTROLS = KeyPad([" ^A", "<v>"])
 
-def get_min_sequence_length(code):
-    m = float('inf')
-    s1 = keypad.get_sequences(code)
-    for s_1 in s1:
-        s2 = controls.get_sequences(s_1)
-        for s_2 in s2:
-            s3 = controls.get_sequences(s_2)
-            for s_3 in s3:
-                m = min(m, len(s_3))
-    return m
+CODES = [
+    '539A',
+    '964A',
+    '803A',
+    '149A',
+    '789A'
+]
 
-part1 = 0
-for code in CODES:
-    m = get_min_sequence_length(code)
-    c = int(code[0:-1])
-    print(code, m, c)
-    part1 += m*c
+def get_costs_for_depth(depth):
 
-print(CONTROLS.cache)
+    @lru_cache(None)
+    def min_cost_for_move(a, b, keys, depth):
+        """
+        Returns the minimum cost of moving from a to b on the given keypad
+        
+        Args:
+            a (str): The starting character
+            b (str): The ending character
+            keys (KeyPad): The keypad to use
+            depth (int): The recursion depth
+        
+        Returns:
+            int: The minimum cost of moving from a to b
+        """
+        if depth == 0: return min(len(p) for p in CONTROLS.find_all_paths(a, b))
+        best = float('inf')
+        for path in keys.find_all_paths(a, b):
+            path = 'A' + path
+            best = min(best, sum(min_cost_for_move(path[i], path[i+1], CONTROLS, depth - 1) for i in range(len(path) - 1)))
+        return best
 
-print(part1)
+    def min_cost_for_code(code, depth):
+        """
+        Returns the minimum cost of moving through a code
+        
+        Args:
+            code (str): The code to move through
+            depth (int): The recursion depth
+            
+        Returns:
+            int: The minimum cost of moving through the code
+        """
+        return sum(min_cost_for_move(code[i], code[i+1], KEYPAD, depth) for i in range(len(code) - 1))
+    
+    total_cost = 0
+    for code in CODES:
+        total_cost += min_cost_for_code('A' + code, depth) * int(code[0:-1])
+    return total_cost
+
+
+print('part 1:', get_costs_for_depth(2))
+print('part 2:', get_costs_for_depth(25))
