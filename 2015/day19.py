@@ -16,12 +16,41 @@ def build_map():
                 S = line
     return R, S
 
-result = set()
-r, s = build_map()
+def calibrate(molecule, mappings):
+    result = set()
 
-for match, replacements in r.items():
-    for i in [m.start() for m in re.finditer(match, s)]:
+    for match, replacements in mappings.items():
+        for i in [m.start() for m in re.finditer(match, molecule)]:
+            for replacement in replacements:
+                result.add(molecule[:i] + replacement + molecule[i+len(match):])
+
+    return result
+
+def get_reversed_mappins(mappings):
+    reverse_mappings = {}
+    for match, replacements in mappings.items():
         for replacement in replacements:
-            result.add(s[:i] + replacement + s[i+len(match):])
+            reverse_mappings[replacement] = match
+    return dict(sorted(reverse_mappings.items(), key=lambda x: len(x[0]), reverse=True))
 
-print(len(result))
+def from_molecule(molecule, mappings):
+    result = set()
+    # Reverse the mappings to find replacements
+    reverse_mappings = get_reversed_mappins(mappings)
+    while molecule != 'e':
+        for match, replacement in reverse_mappings.items():
+            if match in molecule:
+                # Replace the first occurrence of the match with the replacement
+                i = molecule.index(match)
+                molecule = molecule[:i] + replacement + molecule[i+len(match):]
+                result.add(molecule)
+                break
+        else:
+            # If no replacements were made, we are done
+            break
+
+    return result
+
+mappings, molecule = build_map()
+print("Part 1:", len(calibrate(molecule, mappings)))
+print("Part 2:", len(from_molecule(molecule, mappings)))
