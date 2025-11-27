@@ -10,7 +10,7 @@ def getRecipeId(name):
             return i
     return  -1
 
-lines = open("2019/_input/day14.txt").readlines()
+lines = open("../_input/day14.txt").readlines()
 for i in range(len(lines)):
     lines[i] = lines[i].strip('\n').split(" => ")
     lines[i][0] = lines[i][0].split(", ")
@@ -18,7 +18,7 @@ for i in range(len(lines)):
     for j in range(len(lines[i][0])):
         lines[i][0][j]=lines[i][0][j].split(" ")
 
-inventory =[]
+inventory = []
 
 for line in lines:
     ingredients = line[0]
@@ -37,15 +37,7 @@ inventory[getId("FUEL")][1]=-1
 finished = False
 
 while(not finished):
-
-
-
-
-
-
-
-    controlFinished =False
-
+    controlFinished = False
     for ingredient in inventory:
         if(ingredient[0]=="ORE"):
             continue
@@ -60,6 +52,7 @@ while(not finished):
             controlFinished=True
     if(controlFinished == False):
         finished=True
+
 print(inventory[getId("ORE")][1])
 
-print(inventory)
+print(1000000000000 // 13312)
