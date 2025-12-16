@@ -9,48 +9,8 @@ def parse():
             D[parts[0]] = parts[1].split(" ")
     return D
 
-def count_paths(graph, start, end, required_nodes=[]):
-    req = list(required_nodes)
-    req_index = {n: i for i, n in enumerate(req)}
-    FULL = (1 << len(req)) - 1
-
-    # Reachability pruning sets
-    can_reach_end = compute_reachable(graph, [end])
-    can_reach_req = [
-        compute_reachable(graph, [r]) for r in req
-    ]
-
-    @lru_cache(None)
-    def dfs(node, seen_mask, visited):
-        # Prune: can't reach end
-        if node not in can_reach_end:
-            return 0
-
-        # Prune: missing required nodes unreachable
-        for i in range(len(req)):
-            if not (seen_mask & (1 << i)) and node not in can_reach_req[i]:
-                return 0
-
-        # Update mask
-        if node in req_index:
-            seen_mask |= 1 << req_index[node]
-
-        if node == end:
-            return 1 if seen_mask == FULL else 0
-
-        total = 0
-        for nxt in graph.get(node, []):
-            if nxt not in visited:
-                total += dfs(
-                    nxt,
-                    seen_mask,
-                    visited | {nxt}
-                )
-        return total
-
-    return dfs(start, 0, frozenset([start]))
-
 def condense_graph(graph, sccs):
+    """Build a DAG where each SCC collapses to a single node."""
     node_to_scc = {}
     for i, scc in enumerate(sccs):
         for node in scc:
@@ -64,7 +24,11 @@ def condense_graph(graph, sccs):
 
     return dag, node_to_scc
 
-def count_paths_scc(graph, start, end, required_nodes=[]):
+def count_paths(graph, start, end, required_nodes=[]):
+    """
+    Count paths by first condensing SCCs, then doing a DAG DP where a bitmask
+    tracks which required nodes have been visited so far.
+    """
     sccs = tarjan_scc(graph)
     dag, node_to_scc = condense_graph(graph, sccs)
 
@@ -95,6 +59,11 @@ def count_paths_scc(graph, start, end, required_nodes=[]):
     return dfs(start_scc, 0)
 
 def tarjan_scc(graph):
+    """
+    Tarjan's algorithm: single DFS that assigns each node an index and a
+    lowlink (earliest reachable index). When a node is the root of an SCC
+    (lowlink == index), pop the stack to form that component.
+    """
     index = 0
     stack = []
     indices = {}
@@ -134,6 +103,7 @@ def tarjan_scc(graph):
     return sccs
 
 def compute_reachable(graph, targets):
+    """Reverse-BFS to find all nodes that can reach any target node."""
     reverse = defaultdict(list)
     for u, vs in graph.items():
         for v in vs:
@@ -154,5 +124,5 @@ def compute_reachable(graph, targets):
 
 
 d = parse()
-print(count_paths_scc(d, 'you', 'out'))
-print(count_paths_scc(d, 'svr', 'out', ['dac', 'fft']))
+print('part 1:', count_paths(d, 'you', 'out'))
+print('part 2:', count_paths(d, 'svr', 'out', ['dac', 'fft']))
