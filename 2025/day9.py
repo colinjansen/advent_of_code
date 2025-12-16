@@ -12,8 +12,6 @@ def area(a, b):
     return (abs(a[0]-b[0])+1) * (abs(a[1]-b[1])+1)
 
 def inside(a, b, shape):
-    return shape.covers(Point((a[0], b[1]))) and shape.covers(Point((b[0], a[1])))
-def inside2(a, b, shape):
     minx = min(a[0], b[0])
     maxx = max(a[0], b[0])
     miny = min(a[1], b[1])
@@ -39,6 +37,6 @@ def part1(coords, check=None):
 
 coords = parse()
 m1, p = part1(coords)
-m2, p = part1(coords, inside2)
+m2, p = part1(coords, inside)
 print('part 1: ', m1)
 print('part 2: ', m2)
