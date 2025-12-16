@@ -1,15 +1,98 @@
-from collections import defaultdict
-from sympy import Matrix, eye
-
+from collections import defaultdict, deque
+from functools import lru_cache
 
 def parse():
-    graph = defaultdict(list)
+    D = defaultdict(list)
     with open("_input/day11.txt") as f:
-        for line in f:
-            node, neighbors = line.strip().split(": ")
-            graph[node] = neighbors.split()
-    return graph
+        for line in f.readlines():
+            parts = line.strip().split(': ')
+            D[parts[0]] = parts[1].split(" ")
+    return D
 
+def count_paths(graph, start, end, required_nodes=[]):
+    req = list(required_nodes)
+    req_index = {n: i for i, n in enumerate(req)}
+    FULL = (1 << len(req)) - 1
+
+    # Reachability pruning sets
+    can_reach_end = compute_reachable(graph, [end])
+    can_reach_req = [
+        compute_reachable(graph, [r]) for r in req
+    ]
+
+    @lru_cache(None)
+    def dfs(node, seen_mask, visited):
+        # Prune: can't reach end
+        if node not in can_reach_end:
+            return 0
+
+        # Prune: missing required nodes unreachable
+        for i in range(len(req)):
+            if not (seen_mask & (1 << i)) and node not in can_reach_req[i]:
+                return 0
+
+        # Update mask
+        if node in req_index:
+            seen_mask |= 1 << req_index[node]
+
+        if node == end:
+            return 1 if seen_mask == FULL else 0
+
+        total = 0
+        for nxt in graph.get(node, []):
+            if nxt not in visited:
+                total += dfs(
+                    nxt,
+                    seen_mask,
+                    visited | {nxt}
+                )
+        return total
+
+    return dfs(start, 0, frozenset([start]))
+
+def condense_graph(graph, sccs):
+    node_to_scc = {}
+    for i, scc in enumerate(sccs):
+        for node in scc:
+            node_to_scc[node] = i
+
+    dag = defaultdict(set)
+    for u, vs in graph.items():
+        for v in vs:
+            if node_to_scc[u] != node_to_scc[v]:
+                dag[node_to_scc[u]].add(node_to_scc[v])
+
+    return dag, node_to_scc
+
+def count_paths_scc(graph, start, end, required_nodes=[]):
+    sccs = tarjan_scc(graph)
+    dag, node_to_scc = condense_graph(graph, sccs)
+
+    start_scc = node_to_scc[start]
+    end_scc = node_to_scc[end]
+
+    req = list(required_nodes)
+    req_index = {n: i for i, n in enumerate(req)}
+    FULL = (1 << len(req)) - 1
+
+    # Required mask per SCC
+    scc_mask = [0] * len(sccs)
+    for node, idx in req_index.items():
+        scc_mask[node_to_scc[node]] |= 1 << idx
+
+    @lru_cache(None)
+    def dfs(scc, mask):
+        mask |= scc_mask[scc]
+
+        if scc == end_scc:
+            return 1 if mask == FULL else 0
+
+        total = 0
+        for nxt in dag.get(scc, []):
+            total += dfs(nxt, mask)
+        return total
+
+    return dfs(start_scc, 0)
 
 def tarjan_scc(graph):
     index = 0
@@ -19,7 +102,7 @@ def tarjan_scc(graph):
     on_stack = set()
     sccs = []
 
-    def visit(v):
+    def strongconnect(v):
         nonlocal index
         indices[v] = index
         lowlink[v] = index
@@ -29,7 +112,7 @@ def tarjan_scc(graph):
 
         for w in graph.get(v, []):
             if w not in indices:
-                visit(w)
+                strongconnect(w)
                 lowlink[v] = min(lowlink[v], lowlink[w])
             elif w in on_stack:
                 lowlink[v] = min(lowlink[v], indices[w])
@@ -46,105 +129,30 @@ def tarjan_scc(graph):
 
     for node in graph:
         if node not in indices:
-            visit(node)
+            strongconnect(node)
 
     return sccs
 
-
-def condense_graph(graph, sccs):
-    node_to_scc = {}
-    for i, scc in enumerate(sccs):
-        for node in scc:
-            node_to_scc[node] = i
-
-    dag = defaultdict(set)
+def compute_reachable(graph, targets):
+    reverse = defaultdict(list)
     for u, vs in graph.items():
         for v in vs:
-            su, sv = node_to_scc[u], node_to_scc[v]
-            if su != sv:
-                dag[su].add(sv)
+            reverse[v].append(u)
 
-    return dag, node_to_scc
+    reachable = set()
+    q = deque(targets)
+    reachable.update(targets)
 
+    while q:
+        node = q.popleft()
+        for prev in reverse[node]:
+            if prev not in reachable:
+                reachable.add(prev)
+                q.append(prev)
 
-def path_count_matrix(dag, nodes, start, end, blocked=None):
-    blocked = set() if blocked is None else set(blocked)
-    keep = [n for n in nodes if n not in blocked or n in (start, end)]
-    if start not in keep or end not in keep:
-        return 0
-
-    index = {node: i for i, node in enumerate(keep)}
-    size = len(keep)
-    adj = Matrix.zeros(size)
-    for u in keep:
-        ui = index[u]
-        for v in dag.get(u, []):
-            if v in index:
-                adj[ui, index[v]] += 1
-
-    fundamental = (eye(size) - adj).inv()
-    return int(fundamental[index[start], index[end]])
+    return reachable
 
 
-def count_paths_linear_algebra(graph, start, end, required=None):
-    required = required or []
-    sccs = tarjan_scc(graph)
-    dag, node_to_scc = condense_graph(graph, sccs)
-
-    start_scc = node_to_scc[start]
-    end_scc = node_to_scc[end]
-    req_scc = []
-    seen_req = set()
-    for r in required:
-        scc_id = node_to_scc[r]
-        if scc_id not in seen_req:
-            seen_req.add(scc_id)
-            req_scc.append(scc_id)
-
-    all_nodes = list(range(len(sccs)))
-    important = set(req_scc) | {start_scc, end_scc}
-
-    pair_counts = {}
-    for u in important:
-        for v in important:
-            if u == v:
-                continue
-            blocked = important - {u, v}
-            # Exclude other important nodes so each segment is disjoint with respect to them.
-            pair_counts[(u, v)] = path_count_matrix(dag, all_nodes, u, v, blocked)
-
-    if not req_scc:
-        return pair_counts.get((start_scc, end_scc), 0)
-
-    n = len(req_scc)
-    full_mask = (1 << n) - 1
-    dp = [dict() for _ in range(1 << n)]
-
-    for i, scc_id in enumerate(req_scc):
-        ways = pair_counts.get((start_scc, scc_id), 0)
-        if ways:
-            dp[1 << i][i] = ways
-
-    for mask in range(1 << n):
-        for i, ways in dp[mask].items():
-            if not ways:
-                continue
-            for j in range(n):
-                if mask & (1 << j):
-                    continue
-                transition = pair_counts.get((req_scc[i], req_scc[j]), 0)
-                if transition:
-                    next_mask = mask | (1 << j)
-                    dp[next_mask][j] = dp[next_mask].get(j, 0) + ways * transition
-
-    total = 0
-    for i, ways in dp[full_mask].items():
-        finish = pair_counts.get((req_scc[i], end_scc), 0)
-        total += ways * finish
-    return total
-
-
-if __name__ == "__main__":
-    graph = parse()
-    print(count_paths_linear_algebra(graph, "you", "out"))
-    print(count_paths_linear_algebra(graph, "svr", "out", ["dac", "fft"]))
+d = parse()
+print(count_paths_scc(d, 'you', 'out'))
+print(count_paths_scc(d, 'svr', 'out', ['dac', 'fft']))
